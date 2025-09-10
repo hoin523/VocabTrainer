@@ -1,0 +1,22 @@
+{
+  "keyboard": {
+    "correct": 0,
+    "wrong": 3
+  },
+  "banana": {
+    "correct": 0,
+    "wrong": 2
+  },
+  "tree": {
+    "correct": 1,
+    "wrong": 1
+  },
+  "computer": {
+    "correct": 1,
+    "wrong": 0
+  },
+  "phone": {
+    "correct": 0,
+    "wrong": 2
+  }
+}

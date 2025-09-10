@@ -1,0 +1,10 @@
+apple
+banana
+cat
+dog
+book
+computer
+keyboard
+mouse
+phone
+tree
