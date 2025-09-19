@@ -3,7 +3,17 @@ import random
 import requests
 import json
 import os
+import sys
 from tkinter import messagebox
+
+def resource_path(relative_path):
+    """ Get absolute path to resource, works for dev and for PyInstaller """
+    try:
+        # PyInstaller creates a temp folder and stores path in _MEIPASS
+        base_path = sys._MEIPASS
+    except Exception:
+        base_path = os.path.abspath(".")
+    return os.path.join(base_path, relative_path)
 
 # ======================
 # 설정
@@ -11,8 +21,8 @@ from tkinter import messagebox
 API_KEY = "your_api_key"  # Lingvanex API 키
 API_URL = "https://api-b2b.backenster.com/b1/api/v3/translate"
 
-WORDS_FILE = "data/word_list.txt"         # 단어 파일
-CACHE_FILE = "translations.json" # 번역 캐시
+WORDS_FILE = resource_path("data/word_list.txt")         # 단어 파일
+CACHE_FILE = resource_path("translations.json") # 번역 캐시
 
 # ======================
 # 단어 불러오기
@@ -36,9 +46,24 @@ translation_cache = {}
 def load_cache():
     global translation_cache
     if os.path.exists(CACHE_FILE):
-        with open(CACHE_FILE, "r", encoding="utf-8") as f:
-            translation_cache = json.load(f)
-        print(f"[CACHE LOAD] {len(translation_cache)}개 번역 로드")
+        try:
+            with open(CACHE_FILE, "r", encoding="utf-8") as f:
+                loaded_cache = json.load(f)
+            if isinstance(loaded_cache, dict):
+                translation_cache = loaded_cache
+                print(f"[CACHE LOAD] {len(translation_cache)}개 번역 로드")
+            else:
+                print(f"[WARNING] 캐시 파일이 올바른 JSON 형식이 아닙니다. 새 캐시를 시작합니다.")
+                translation_cache = {} # Reinitialize if not a dict
+        except json.JSONDecodeError:
+            print(f"[ERROR] 캐시 파일 디코딩 오류. 새 캐시를 시작합니다.")
+            translation_cache = {} # Reinitialize on decode error
+        except Exception as e:
+            print(f"[ERROR] 캐시 로드 중 알 수 없는 오류 발생: {e}. 새 캐시를 시작합니다.")
+            translation_cache = {} # Reinitialize on other errors
+    else:
+        print(f"[INFO] 캐시 파일 없음: {CACHE_FILE}. 새 캐시를 시작합니다.")
+        translation_cache = {} # Ensure it's a dict if file doesn't exist
 
 def save_cache():
     with open(CACHE_FILE, "w", encoding="utf-8") as f:
